@@ -1,7 +1,0 @@
-AXPT-1044
-/opt/services/amex/app/assets/javascripts/package/package-checkout.js
-/opt/services/amex/app/assets/javascripts/package/package.js
-/opt/services/ovt/app/controllers/ovt/carts_controller.rb
-/opt/services/ovt/lib/ovt/package_response_decorator.rb
-/opt/services/ovt/app/controllers/ovt/package_searches_controller.rb
-/opt/services/ovt/app/models/ovt/package_search.rb
