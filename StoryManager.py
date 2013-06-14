@@ -46,10 +46,12 @@ class SaveStoryCommand(sublime_plugin.WindowCommand):
 
 class OpenStoryCommand(sublime_plugin.WindowCommand):
     STORIES_PATH = sublime.packages_path() + '/StoryManager/stories'
+    
 
     def run(self):
         self.story_names = []
         self.story_paths = []
+        w = self.window
 
         # get story files
         stories_directory = os.listdir(self.STORIES_PATH)
@@ -59,19 +61,42 @@ class OpenStoryCommand(sublime_plugin.WindowCommand):
                     story_json = json.load(story_path)
 
                     self.story_paths.append(self.STORIES_PATH + '/' + story_path)
-                    self.story_names.append(story_json['title']) # the name given by the user is the first entry in the csv, thats all we need to display in the dropdown
+                    self.story_names.append(story_json['title'])  # used for the dropdown display name
         
-        self.window.show_quick_panel(self.story_names, self.story_selected) 
+        self.window.show_quick_panel(self.story_names, self.story_selected)
 
     def story_selected(self, index):
+        w = self.window
         if index != -1:
             self.story_path = self.story_paths[index]
             current_views = self.window.views
+            #TODO: refactor this
             url = 'https://iseatz.jira.com/browse/' + str(self.story_names[index]).strip('[]').strip("'")
             open_url(url)
             
-            with open(self.story_path, 'rb') as csvfile:
-                reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-                reader.next() #throw away the first line (name)
-                for row in reader:
-                    self.window.open_file(row[0])
+            with open(self.story_path, 'rb') as json_file:
+                json_data = json.load(json_file)
+                set_layout(w, len(json_data['groups']))
+                #for 
+                #self.window.open_file(row[0])
+
+    def set_layout(w, num_columns):
+        layouts = [{
+                        "cols": [0.0, 0.5, 1.0],
+                        "rows": [0.0, 1.0],
+                        "cells": [[0, 0, 1, 1], [1, 0, 2, 1]]
+                    },
+                    {
+                        "cols": [0.0, 0.33, 0.66, 1.0],
+                        "rows": [0.0, 1.0],
+                        "cells": [[0, 0, 1, 1], [1, 0, 2, 1], [2, 0, 3, 1]]
+                    },
+                    {
+                        "cols": [0.0, 0.25, 0.5, 0.75, 1.0],
+                        "rows": [0.0, 1.0],
+                        "cells": [[0, 0, 1, 1], [1, 0, 2, 1], [2, 0, 3, 1], [3, 0, 4, 1]]
+                    }
+                  ]
+        w.run_command('set_layout', layouts[num_columns - 2])
+
+
