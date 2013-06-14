@@ -45,19 +45,20 @@ class SaveStoryCommand(sublime_plugin.WindowCommand):
 
 
 class OpenStoryCommand(sublime_plugin.WindowCommand):
-    STORY_PATH = sublime.packages_path() + '/StoryManager/stories'
+    STORIES_PATH = sublime.packages_path() + '/StoryManager/stories'
 
     def run(self):
         self.story_names = []
         self.story_paths = []
-        # get stories
-        stories = os.listdir(self.STORY_PATH)
-        for story in stories:
-            if not story.startswith('.'): # ignore . system files (.DS_Store)
-                with open(self.STORY_PATH + '/' + story, 'rb') as story_file:
-                    story_json = json.load(story_file)
 
-                    self.story_paths.append(self.STORY_PATH + '/' + story)
+        # get story files
+        stories_directory = os.listdir(self.STORIES_PATH)
+        for file_path in stories_directory:
+            if not file_path.startswith('.'): # ignore . system files (.DS_Store)
+                with open(self.STORIES_PATH + '/' + file_path, 'rb') as story_path:
+                    story_json = json.load(story_path)
+
+                    self.story_paths.append(self.STORIES_PATH + '/' + story_path)
                     self.story_names.append(story_json['title']) # the name given by the user is the first entry in the csv, thats all we need to display in the dropdown
         
         self.window.show_quick_panel(self.story_names, self.story_selected) 
