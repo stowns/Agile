@@ -6,10 +6,15 @@ Commands
 ctrl+cmd+s - save story
 crtl+cmd+o - open story
 
-Remaining
+Remaining Commands
 ----------
 
 remove
 update
 cofigure jira root url
 
+
+House Cleaning
+----------
+refactor python code
+support for ST3?
