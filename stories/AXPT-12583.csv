@@ -1,0 +1,14 @@
+AXPT-12583
+/opt/services/amex/app/views/ovt/hotels/checkout/_hotel_checkout.html.haml
+/opt/services/ovt/lib/ovt/mappable.rb
+/opt/services/ovt/app/models/ovt/hotel.rb
+/opt/services/amex/Gemfile
+/opt/services/amex/app/views/ovt/carts/package/_cart.html.haml
+/opt/services/ovt/app/controllers/ovt/package_searches_controller.rb
+/opt/services/ovt/app/models/ovt/cart_product/package.rb
+/opt/services/ovt/app/models/ovt/package_search.rb
+/opt/services/pbr/lib/pbr/proto/dp_shop_response.pb.rb
+/opt/services/pbr/lib/pbr/proto/hotel_shop_response.pb.rb
+/opt/services/ovt/app/models/ovt/package.rb
+/opt/services/pbr/proto/dp_reprice_response.proto
+/opt/services/dp_orbitz/bin/reprice_response_parser.rb

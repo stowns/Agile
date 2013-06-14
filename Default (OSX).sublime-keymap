@@ -1,0 +1,8 @@
+[
+    { 
+        "keys": ["ctrl+super+s"], "command": "save_story" 
+    },
+    { 
+        "keys": ["ctrl+super+o"], "command": "open_story" 
+    }
+]
