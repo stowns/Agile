@@ -1,0 +1,14 @@
+[
+    {
+        "caption": "Agile: Create Sprint",
+        "command": "create_sprint"
+    },
+    {
+        "caption": "Agile: Save Story",
+        "command": "save_story"
+    },
+    {
+        "caption": "Agile: Open Story",
+        "command": "open_story"
+    }
+]

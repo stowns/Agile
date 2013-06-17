@@ -1,20 +1,20 @@
-TODO: write this
-
 Commands
 ----------
-
 ctrl+cmd+s - save story
 crtl+cmd+o - open story
 
+
+TODO:
 Remaining Commands
 ----------
-
 remove
 update
-cofigure jira root url
+configure jira root url
 
 
 House Cleaning
 ----------
 refactor python code
 support for ST3?
+
+Package up for Package Control
