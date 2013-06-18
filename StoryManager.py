@@ -1,5 +1,5 @@
 import sublime, sublime_plugin
-import os
+import os, shutil
 import json
 
 
@@ -37,12 +37,10 @@ def open_sprint_folders(origin):
 
 # hold reference to sprint folder
 # show stories in sprint
-def select_story(origin, sprint_folders, index):
+def select_story(origin, sprint_path, index):
     story_titles = []
 
     if index != -1:
-        sprint_path = SPRINTS_PATH + sprint_folders[index]
-
         # get all files from sprint folder
         story_paths = os.listdir(sprint_path)
 
@@ -60,7 +58,7 @@ def select_story(origin, sprint_folders, index):
         origin.window.show_quick_panel(story_titles, origin.story_selected)
 
         # return paths to reference by index after selection
-        return sprint_path, story_paths
+        return story_paths
 
 
 
@@ -70,30 +68,13 @@ def select_story(origin, sprint_folders, index):
 class SaveStoryCommand(sublime_plugin.WindowCommand):
 
     def run(self):
-        self.sprint_folders, self.sprint_titles, sprints_path = open_sprint_folders()
-
-        if len(self.sprint_folders) == 0:
-            sublime.error_message('No Sprints currently exist. Please create one')
-            return
-
-        # read the metadata file from each directory to get sprint titles for displaying in the quick_panel
-        for folder in self.sprint_folders:
-            with open(sprints_path + folder + '/metadata.json', 'rb') as metadata_file:
-                json_data = json.load(metadata_file)
-                self.sprint_titles.append(json_data['title'])
-
-        self.window.show_quick_panel(self.sprint_titles, self.sprint_selected)
+        self.sprint_folders  = open_sprint_folders(self)
 
     # hold reference to sprint folder
     # prompt user to give the story a title
     def sprint_selected(self, index):
-        SPRINTS_PATH = sublime.packages_path() + '/Agile/sprints/'
-
-        w = self.window
-        if index != -1:
-            self.sprint_path = sublime.packages_path() + '/Agile/sprints/' + self.sprint_folders[index]
-            'sprint path ' + self.sprint_path
-            w.show_input_panel('Story Title: ', '', self.save_story, None, None)
+        self.sprint_path = SPRINTS_PATH + self.sprint_folders[index]
+        self.window.show_input_panel('Story Title: ', '', self.save_story, None, None)
       
     def save_story(self, story_title):
         w = self.window
@@ -137,7 +118,8 @@ class OpenStoryCommand(sublime_plugin.WindowCommand):
         self.sprint_folders  = open_sprint_folders(self)
 
     def sprint_selected(self, index):
-        self.sprint_path, self.story_paths = select_story(self, self.sprint_folders, index)
+        self.sprint_path = SPRINTS_PATH + self.sprint_folders[index]
+        self.story_paths = select_story(self, self.sprint_path, index)
 
     # open the story json file
     # iterate the groups, if any
@@ -196,13 +178,20 @@ class DeleteStoryCommand(sublime_plugin.WindowCommand):
         self.sprint_folders  = open_sprint_folders(self)
 
     def sprint_selected(self, index):
-        self.sprint_path, self.story_paths = select_story(self, self.sprint_folders, index)
+        self.sprint_path = SPRINTS_PATH + self.sprint_folders[index]
+        self.story_paths = select_story(self, self.sprint_path, index)
 
     def story_selected(self, index):
         if index != -1:
-            story_path = self.story_paths[index]
+            self.story_path = self.story_paths[index]
+            self.window.show_quick_panel(['nevermind', 'really delete this story'], self.you_sure_brah)
 
-            os.remove(self.sprint_path + '/' + story_path)
+    def you_sure_brah(self, index):
+        if index == 1:
+            os.remove(self.sprint_path + '/' + self.story_path)
+        else:
+            return
+            
 
 # prompt user with input panel
 # create sprint folder
@@ -231,4 +220,20 @@ class CreateSprintCommand(sublime_plugin.WindowCommand):
             if exc.errno == errno.EEXIST and os.path.isdir(path):
                 # TODO: show error
                 pass
+
+# open sprint folders
+class DeleteSprintCommand(sublime_plugin.WindowCommand):
+
+    def run(self):
+        self.sprint_folders  = open_sprint_folders(self)
+
+    def sprint_selected(self, index):
+        self.sprint_path = SPRINTS_PATH + self.sprint_folders[index]
+        self.window.show_quick_panel(['nevermind', 'really delete this sprint'], self.you_sure_brah)
+
+    def you_sure_brah(self, index):
+        if index == 1:
+            shutil.rmtree(self.sprint_path)
+        else:
+            return
 

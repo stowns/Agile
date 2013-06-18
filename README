@@ -1,14 +1,12 @@
-Commands
+Shortcuts
 ----------
 ctrl+cmd+s - save story
 crtl+cmd+o - open story
-
+shift+alt+p - all remaining CRUD commands
 
 TODO:
 Remaining Commands
 ----------
-remove
-update
 configure jira root url
 
 
@@ -16,5 +14,5 @@ House Cleaning
 ----------
 refactor python code
 support for ST3?
-
+error handling here and there
 Package up for Package Control
