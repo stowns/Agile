@@ -9,9 +9,14 @@ Basic Flow
 
 Shortcuts
 ----------
-- ctrl+cmd+s - save story
-- crtl+cmd+o - open story
-- shift+alt+p - all remaining CRUD commands
+- ctrl+super+s - save story
+- crtl+super+o - open story
+- shift+super+p - all remaining commands available under 'Agile' prefix
+
+### Jira Support
+Agile can automatically open the jira ticket associated with your story if 2 criteria are met
+- configure a root url via shift+super+p -> 'Agile: Configure Jira'
+- You must name your jira story identically to its jira url slug.  ie) https://example.jira.com/browse/my-story would need to be saved as 'my-story'
 
 ### TODO:
 configure jira root url

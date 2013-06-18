@@ -18,5 +18,9 @@
     {
         "caption": "Agile: Delete Sprint",
         "command": "delete_sprint"
+    },
+    {
+        "caption": "Agile: Configure Jira",
+        "command": "configure_jira"
     }
 ]

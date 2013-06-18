@@ -4,17 +4,41 @@ import json
 
 
 SPRINTS_PATH = sublime.packages_path() + '/Agile/sprints/'
+PREFS_PATH = sublime.packages_path() + '/Agile/preferences.json'
 
 def open_url(url):
     sublime.active_window().run_command('open_url', {"url": url})
+
+def init_prefs():
+    with open(PREFS_PATH, 'wb') as json_file:
+        prefs = { 'jira_root' : 'https://example.jira.com' }
+        json.dump(prefs, json_file)
+
+def load_prefs():
+    ensure_path(PREFS_PATH)
+
+    with open(PREFS_PATH, 'r+') as json_file:
+        try:
+            json_data = json.load(json_file)
+            return json_data
+        except ValueError as exc:
+            #enters if there is no data in the file yet`
+            init_prefs()
+            load_prefs()
+
+def ensure_path(path, is_folder=False):
+    if not os.path.exists(path):
+        if is_folder:
+            os.makedirs(path)
+        else:
+            open(path, 'wb').close()
 
 def open_sprint_folders(origin):
     SPRINTS_PATH = sublime.packages_path() + '/Agile/sprints/'
     sprint_folders = []
     sprint_titles = []
     
-    if not os.path.exists(SPRINTS_PATH):
-        os.makedirs(SPRINTS_PATH)
+    ensure_path(SPRINTS_PATH, True)
 
     # get existing sprint folders
     sprint_folders = os.listdir(SPRINTS_PATH)
@@ -58,7 +82,7 @@ def select_story(origin, sprint_path, index):
         origin.window.show_quick_panel(story_titles, origin.story_selected)
 
         # return paths to reference by index after selection
-        return story_paths
+        return story_titles, story_paths
 
 
 
@@ -112,14 +136,14 @@ class SaveStoryCommand(sublime_plugin.WindowCommand):
 # display sprint folders via quick panel
 # display stories associated w/ a sprint
 class OpenStoryCommand(sublime_plugin.WindowCommand):
-    SPRINTS_PATH = sublime.packages_path() + '/Agile/sprints/'
 
     def run(self):
+        self.prefs = load_prefs()
         self.sprint_folders  = open_sprint_folders(self)
 
     def sprint_selected(self, index):
         self.sprint_path = SPRINTS_PATH + self.sprint_folders[index]
-        self.story_paths = select_story(self, self.sprint_path, index)
+        self.story_titles, self.story_paths = select_story(self, self.sprint_path, index)
 
     # open the story json file
     # iterate the groups, if any
@@ -128,13 +152,14 @@ class OpenStoryCommand(sublime_plugin.WindowCommand):
         w = self.window
         if index != -1:
             self.story_path = self.story_paths[index]
-            #TODO: refactor this
-            #url = 'https://iseatz.jira.com/browse/' + str(self.story_titles[index]).strip('[]').strip("'")
-            #open_url(url)
+            if self.prefs['jira_root']:
+                url = self.prefs['jira_root'] + '/browse/' + str(self.story_titles[index]).strip('[]').strip("'")
+                print url
+                open_url(url)
             
             with open(self.sprint_path + '/' + self.story_path, 'rb') as json_file:
                 json_data = json.load(json_file)
-                print json_data
+
                 # create the view groups
                 num_groups = len(json_data['groups'])
                 if num_groups > 1:
@@ -179,7 +204,7 @@ class DeleteStoryCommand(sublime_plugin.WindowCommand):
 
     def sprint_selected(self, index):
         self.sprint_path = SPRINTS_PATH + self.sprint_folders[index]
-        self.story_paths = select_story(self, self.sprint_path, index)
+        self.story_titles, self.story_paths = select_story(self, self.sprint_path, index)
 
     def story_selected(self, index):
         if index != -1:
@@ -237,3 +262,17 @@ class DeleteSprintCommand(sublime_plugin.WindowCommand):
         else:
             return
 
+class ConfigureJiraCommand(sublime_plugin.WindowCommand):
+
+    def run(self):
+      ensure_path(PREFS_PATH)
+      json_data = load_prefs()
+      self.window.show_input_panel('Enter Jira Root Url: ', json_data['jira_root'], self.jira_added, None, None)
+
+    def jira_added(self, jira_root):        
+        with open(PREFS_PATH, 'r+') as json_file:
+            data = json.load(json_file)
+            data['jira_root'] = jira_root
+            json_file.seek(0)  # write to the start of the file
+            json_file.write(json.dumps(data))
+            json_file.truncate()  # remove the old stuff
