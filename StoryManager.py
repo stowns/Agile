@@ -152,7 +152,7 @@ class OpenStoryCommand(sublime_plugin.WindowCommand):
         w = self.window
         if index != -1:
             self.story_path = self.story_paths[index]
-            if self.prefs['jira_root']:
+            if self.prefs['jira_root'] != 'https://example.jira.com':
                 url = self.prefs['jira_root'] + '/browse/' + str(self.story_titles[index]).strip('[]').strip("'")
                 print url
                 open_url(url)
