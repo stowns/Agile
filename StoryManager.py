@@ -1,5 +1,5 @@
 import sublime, sublime_plugin
-import os, shutil
+import os, shutil, errno
 import json
 
 
