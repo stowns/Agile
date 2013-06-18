@@ -2,10 +2,13 @@ import sublime, sublime_plugin
 import os
 import json
 
+
+SPRINTS_PATH = sublime.packages_path() + '/Agile/sprints/'
+
 def open_url(url):
     sublime.active_window().run_command('open_url', {"url": url})
 
-def open_sprint_folders():
+def open_sprint_folders(origin):
     SPRINTS_PATH = sublime.packages_path() + '/Agile/sprints/'
     sprint_folders = []
     sprint_titles = []
@@ -17,7 +20,49 @@ def open_sprint_folders():
     sprint_folders = os.listdir(SPRINTS_PATH)
     # kill system files
     sprint_folders[:] = [x for x in sprint_folders if not x.startswith('.')]
-    return sprint_folders, sprint_titles, SPRINTS_PATH
+
+    if len(sprint_folders) == 0:
+            sublime.error_message('No Sprints currently exist. Please create one')
+            return
+
+    # read the metadata file from each directory to get sprint titles for displaying in the quick_panel
+    for folder in sprint_folders:
+        with open(SPRINTS_PATH + folder + '/metadata.json', 'rb') as metadata_file:
+            json_data = json.load(metadata_file)
+            sprint_titles.append(json_data['title'])
+
+    origin.window.show_quick_panel(sprint_titles, origin.sprint_selected)
+    
+    return sprint_folders
+
+# hold reference to sprint folder
+# show stories in sprint
+def select_story(origin, sprint_folders, index):
+    story_titles = []
+
+    if index != -1:
+        sprint_path = SPRINTS_PATH + sprint_folders[index]
+
+        # get all files from sprint folder
+        story_paths = os.listdir(sprint_path)
+
+        # filter out sprint metadata and system files
+        # TODO: do this better
+        story_paths[:] = [x for x in story_paths if not x.startswith('.')]
+        story_paths[:] = [x for x in story_paths if not x.startswith('metadata.json')]
+        
+        # read the title from each story.json, stuff it into the story_titles for the dispay with a quick_panel
+        for story_path in story_paths:
+            with open(sprint_path + '/' + story_path, 'rb') as story_file:
+                json_data = json.load(story_file)
+                story_titles.append(json_data['title'])
+
+        origin.window.show_quick_panel(story_titles, origin.story_selected)
+
+        # return paths to reference by index after selection
+        return sprint_path, story_paths
+
+
 
 # prompt user with list of existing sprint titles to choose from
 # give the story a title
@@ -89,56 +134,21 @@ class OpenStoryCommand(sublime_plugin.WindowCommand):
     SPRINTS_PATH = sublime.packages_path() + '/Agile/sprints/'
 
     def run(self):
-        w = self.window
+        self.sprint_folders  = open_sprint_folders(self)
 
-        # get sprint folders,files
-        self.sprint_folders, self.sprint_titles, sprints_path = open_sprint_folders()
-       
-        if len(self.sprint_folders) == 0:
-            sublime.error_message('No Sprints currently exist. Please create one')
-            return
-
-        # read the metadata file from each directory to get sprint titles for displaying in the quick_panel
-        for folder in self.sprint_folders:
-            with open(sprints_path + folder + '/metadata.json', 'rb') as metadata_file:
-                json_data = json.load(metadata_file)
-                self.sprint_titles.append(json_data['title'])
-
-        self.window.show_quick_panel(self.sprint_titles, self.sprint_selected)
-
-    # hold reference to sprint folder
-    # show stories in sprint
     def sprint_selected(self, index):
-        w = self.window
-        self.story_titles = []
+        self.sprint_path, self.story_paths = select_story(self, self.sprint_folders, index)
 
-        if index != -1:
-            self.sprint_path = sublime.packages_path() + '/Agile/sprints/' + self.sprint_folders[index]
-
-            # get all files from sprint folder
-            all_paths = os.listdir(self.sprint_path)
-
-            # kill system files
-            # TODO: do this better
-            all_paths[:] = [x for x in all_paths if not x.startswith('.')]
-            all_paths[:] = [x for x in all_paths if not x.startswith('metadata.json')]
-            self.story_paths = all_paths
-            # read the metadata file from each directory to get sprint titles for displaying in the quick_panel
-            for story_path in self.story_paths:
-                with open(self.sprint_path + '/' + story_path, 'rb') as story_file:
-                    json_data = json.load(story_file)
-                    self.story_titles.append(json_data['title'])
-
-            self.window.show_quick_panel(self.story_titles, self.story_selected)
-
+    # open the story json file
+    # iterate the groups, if any
+    # open the views
     def story_selected(self, index):
         w = self.window
         if index != -1:
             self.story_path = self.story_paths[index]
-            current_views = self.window.views
             #TODO: refactor this
-            url = 'https://iseatz.jira.com/browse/' + str(self.story_titles[index]).strip('[]').strip("'")
-            open_url(url)
+            #url = 'https://iseatz.jira.com/browse/' + str(self.story_titles[index]).strip('[]').strip("'")
+            #open_url(url)
             
             with open(self.sprint_path + '/' + self.story_path, 'rb') as json_file:
                 json_data = json.load(json_file)
@@ -159,6 +169,7 @@ class OpenStoryCommand(sublime_plugin.WindowCommand):
                         view = self.window.open_file(i)
                         w.set_view_index(view, w.active_group(), index)
 
+    # redefined layouts for 2,3,4 columns
     def set_layout(self, num_columns):
         layouts = [{
                         "cols": [0.0, 0.5, 1.0],
@@ -178,6 +189,20 @@ class OpenStoryCommand(sublime_plugin.WindowCommand):
                   ]
         self.window.run_command('set_layout', layouts[num_columns - 2])
 
+# open sprint folders
+class DeleteStoryCommand(sublime_plugin.WindowCommand):
+
+    def run(self):
+        self.sprint_folders  = open_sprint_folders(self)
+
+    def sprint_selected(self, index):
+        self.sprint_path, self.story_paths = select_story(self, self.sprint_folders, index)
+
+    def story_selected(self, index):
+        if index != -1:
+            story_path = self.story_paths[index]
+
+            os.remove(self.sprint_path + '/' + story_path)
 
 # prompt user with input panel
 # create sprint folder
@@ -206,3 +231,4 @@ class CreateSprintCommand(sublime_plugin.WindowCommand):
             if exc.errno == errno.EEXIST and os.path.isdir(path):
                 # TODO: show error
                 pass
+

@@ -1,14 +1,22 @@
 [
     {
-        "caption": "Agile: Create Sprint",
+        "caption": "Agile: Create New Sprint",
         "command": "create_sprint"
     },
     {
-        "caption": "Agile: Save Story",
+        "caption": "Agile: Create/Save Story",
         "command": "save_story"
     },
     {
         "caption": "Agile: Open Story",
         "command": "open_story"
+    },
+    {
+        "caption": "Agile: Delete Story",
+        "command": "delete_story"
+    },
+    {
+        "caption": "Agile: Delete Sprint",
+        "command": "delete_sprint"
     }
 ]
