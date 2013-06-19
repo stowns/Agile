@@ -34,7 +34,6 @@ def ensure_path(path, is_folder=False):
             open(path, 'wb').close()
 
 def open_sprint_folders(origin):
-    SPRINTS_PATH = sublime.packages_path() + '/Agile/sprints/'
     sprint_folders = []
     sprint_titles = []
     
@@ -222,7 +221,7 @@ class DeleteStoryCommand(sublime_plugin.WindowCommand):
 # create sprint folder
 # save metadata file with-in sprint folder
 class CreateSprintCommand(sublime_plugin.WindowCommand):
-    SPRINTS_PATH = sublime.packages_path() + '/Agile/sprints/'
+    ensure_path(SPRINTS_PATH, True)
 
     def run(self):
         self.window.show_input_panel('Sprint Title: ', '', self.create_sprint, None, None)
