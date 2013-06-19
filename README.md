@@ -1,5 +1,11 @@
 Agile
 ======
+ST2 allows users to create projects but offers no mechanism for saving a particular workspace with-in that project.  This can become a problem if you find yourself working on multiple stories involving dozens of files at once.  Agile allows you to save a window and associate its state with a Sprint and Story name that can then be retrieved at a later date.  That's about it.
+
+Installation
+----------
+- Easy: via [Package Control](http://wbond.net/sublime_packages/package_control) 
+- Super-hard: clone repo to your /Sublime Text 2/Packages directory
 
 Basic Flow
 ----------
@@ -19,7 +25,5 @@ Agile can automatically open the jira ticket associated with your story if 2 cri
 - You must name your jira story identically to its jira url slug.  ie) https://example.jira.com/browse/my-story would need to be saved as 'my-story'
 
 ### TODO:
-- refactor python code
-- support for ST3?
+- support for ST3
 - error handling here and there
-- Package up for Package Control

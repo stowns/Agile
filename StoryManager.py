@@ -149,6 +149,8 @@ class OpenStoryCommand(sublime_plugin.WindowCommand):
     # open the views
     def story_selected(self, index):
         w = self.window
+        # close any already open files
+        w.run_command('close_all')
         if index != -1:
             self.story_path = self.story_paths[index]
             if self.prefs['jira_root'] != 'https://example.jira.com':
