@@ -229,7 +229,7 @@ class CreateSprintCommand(sublime_plugin.WindowCommand):
     def create_sprint(self, sprint_title):
         # make the title safe to save as a directory
         keepcharacters = (' ','.','_')
-        sprint_path = self.SPRINTS_PATH + "".join(c for c in sprint_title if c.isalnum() or c in keepcharacters).rstrip()
+        sprint_path = SPRINTS_PATH + "".join(c for c in sprint_title if c.isalnum() or c in keepcharacters).rstrip()
         
         try:
             os.mkdir(sprint_path)
