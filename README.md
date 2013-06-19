@@ -19,9 +19,6 @@ Agile can automatically open the jira ticket associated with your story if 2 cri
 - You must name your jira story identically to its jira url slug.  ie) https://example.jira.com/browse/my-story would need to be saved as 'my-story'
 
 ### TODO:
-configure jira root url
-
-### House Cleaning:
 - refactor python code
 - support for ST3?
 - error handling here and there
